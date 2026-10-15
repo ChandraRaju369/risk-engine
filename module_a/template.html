@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Index Rebalancer</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10);
+  --blue: #2a78d6; --red: #e34948; --mid: #f0efec;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
+    --blue: #3987e5; --red: #e66767; --mid: #383835;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
+  --blue: #3987e5; --red: #e66767; --mid: #383835;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 22px; margin: 0 0 2px; font-weight: 650; }
+.sub { color: var(--ink2); margin: 0 0 16px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.card h2 { font-size: 14px; margin: 0 0 2px; font-weight: 650; }
+.card .note { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+.row { display: grid; gap: 16px; margin-top: 16px; }
+.cols2 { grid-template-columns: 1fr 1fr; align-items: start; }
+.stack { display: grid; gap: 16px; }
+
+/* filter row */
+.filters { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.filters label.lbl { color: var(--muted); font-size: 12px; margin-right: 6px; }
+button, input[type=range] { font: inherit; }
+.btn { background: var(--surface); color: var(--ink); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 14px; cursor: pointer; min-width: 84px; }
+.btn:hover { background: var(--grid); }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.seg button { background: transparent; color: var(--ink2); border: 0; padding: 6px 14px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button[aria-pressed=true] { background: var(--blue); color: #fff; }
+.slider { flex: 1 1 280px; display: flex; align-items: center; gap: 12px; min-width: 240px; }
+.slider input { flex: 1; accent-color: var(--blue); }
+#timeLabel { font-variant-numeric: tabular-nums; min-width: 150px; color: var(--ink2); }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* KPI tiles */
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 16px; }
+.tile .label { color: var(--muted); font-size: 12px; }
+.tile .value { font-size: 28px; font-weight: 650; line-height: 1.2; margin-top: 2px; }
+.tile .hint { color: var(--ink2); font-size: 12px; margin-top: 2px; }
+
+/* small multiples */
+.sm { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.panel { background: transparent; border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 8px 4px; text-align: left; cursor: pointer; color: inherit; font: inherit; }
+.panel:hover { border-color: var(--axis); }
+.panel[aria-pressed=true] { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue); }
+.panel .head { display: flex; justify-content: space-between; align-items: baseline; }
+.panel .tk { font-weight: 650; }
+.panel .wt { font-variant-numeric: tabular-nums; color: var(--ink2); }
+.panel svg { display: block; width: 100%; height: auto; margin-top: 2px; }
+.axisnote { color: var(--muted); font-size: 12px; margin-top: 8px; display: flex; justify-content: space-between; }
+
+/* table */
+table { width: 100%; border-collapse: collapse; }
+caption { text-align: left; }
+th { text-align: left; color: var(--muted); font-weight: 500; font-size: 12px; padding: 0 8px 6px; }
+td { padding: 5px 8px; border-top: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+tr.sel td { background: color-mix(in srgb, var(--blue) 10%, transparent); }
+tbody tr { cursor: pointer; }
+td.num, th.num { text-align: right; }
+.bar { position: relative; height: 10px; background: var(--grid); border-radius: 5px; min-width: 90px; }
+.bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--blue); border-radius: 5px; }
+.bar b { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--ink2); }
+
+/* heatmap + legend */
+#heat { width: 100%; height: auto; display: block; }
+.legend { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: var(--muted); font-size: 12px; flex-wrap: wrap; }
+.legend .sw { display: inline-flex; gap: 2px; }
+.legend .sw i { width: 18px; height: 10px; display: block; }
+
+/* drivers + feed */
+.drv { padding: 10px 0; border-top: 1px solid var(--grid); }
+.drv:first-of-type { border-top: 0; padding-top: 0; }
+.drv .txt { margin-bottom: 2px; }
+.drv .meta, .feed .meta { color: var(--ink2); font-size: 12px; }
+.tag { display: inline-block; font-size: 11px; color: var(--ink2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0 5px; margin-right: 6px; }
+.feed .item { padding: 7px 0; border-top: 1px solid var(--grid); display: grid; grid-template-columns: 44px 52px 1fr; gap: 8px; }
+.feed .item:first-child { border-top: 0; padding-top: 0; }
+.feed .txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.empty { color: var(--muted); }
+
+#tip { position: fixed; pointer-events: none; z-index: 10; display: none; background: var(--surface);
+  color: var(--ink); border: 1px solid var(--axis); border-radius: 8px; padding: 8px 10px; font-size: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.12); max-width: 260px; }
+#tip .v { font-weight: 650; font-size: 13px; }
+#tip .s { color: var(--ink2); }
+
+@media (max-width: 1000px) {
+  .sm { grid-template-columns: repeat(3, 1fr); }
+  .cols2 { grid-template-columns: 1fr; }
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) { .sm { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Tactical index rebalancer</h1>
+  <p class="sub" id="sub"></p>
+
+  <div class="card filters" role="group" aria-label="Replay controls">
+    <button class="btn" id="play" type="button">▶ Play</button>
+    <div class="slider">
+      <input id="slider" type="range" min="0" value="0" aria-label="Time">
+      <span id="timeLabel"></span>
+    </div>
+    <div>
+      <label class="lbl">Signals from</label>
+      <span class="seg" id="scope" role="group" aria-label="Signal source">
+        <button type="button" data-scope="all" aria-pressed="true">All</button>
+        <button type="button" data-scope="news" aria-pressed="false">News</button>
+        <button type="button" data-scope="social" aria-pressed="false">Social</button>
+      </span>
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card" style="margin-top:16px">
+    <h2>Weight of each stock over time</h2>
+    <p class="note">One panel per stock, all on the same 0–16% scale. The grey line is the equal-weight starting point; the dot is the selected time. Click a panel to explain it.</p>
+    <div class="sm" id="sm"></div>
+    <div class="axisnote"><span id="t0"></span><span id="t1"></span></div>
+  </div>
+
+  <div class="row cols2">
+    <div class="card">
+      <table id="tbl">
+        <caption><h2>Weights at the selected time</h2><p class="note">The tick on each bar marks the equal-weight starting point.</p></caption>
+        <thead><tr><th>Stock</th><th>Weight</th><th class="num"></th><th class="num">Step change</th><th class="num">Sentiment</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h2>Sentiment score by stock</h2>
+        <p class="note">Time-decayed score, −1 (negative) to +1 (positive). Hover a cell for details, click to jump there.</p>
+        <svg id="heat" role="img" aria-label="Sentiment score heatmap by stock and time"></svg>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="card" id="why"></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="card feed" id="feed"></div>
+  </div>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const D = JSON.parse(document.getElementById('data').textContent);
+const T = D.times.length, tickers = D.meta.tickers, P = D.meta.params, BASE = D.meta.base;
+const YMAX = P.w_max + 0.01;
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+const state = { i: D.meta.start_index, ticker: null, scope: 'all', timer: null };
+const S = () => D.scopes[state.scope];
+
+function svg(tag, attrs, text) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs || {}) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  return e;
+}
+function h(tag, attrs, text) {
+  const e = document.createElement(tag);
+  for (const k in attrs || {}) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); }
+  if (text != null) e.textContent = text;
+  return e;
+}
+const pct = (x, d = 1) => (x * 100).toFixed(d) + '%';
+const sgn = (x, d = 2) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(d);
+const hhmm = iso => iso.slice(11, 16);
+const clock = i => D.times[i].slice(0, 10) + ' ' + hhmm(D.times[i]) + ' UTC';
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+/* ---------- colours: diverging blue <-> grey <-> red, 5 steps per arm ---------- */
+function hex2rgb(x) { x = x.replace('#', ''); return [0, 2, 4].map(k => parseInt(x.substr(k, 2), 16)); }
+function mix(a, b, f) { const A = hex2rgb(a), B = hex2rgb(b);
+  return 'rgb(' + A.map((v, k) => Math.round(v + (B[k] - v) * f)).join(',') + ')'; }
+function heatColor(score) {
+  const step = Math.min(5, Math.ceil(Math.abs(score) * 5 - 1e-9));
+  if (Math.abs(score) < 0.05 || step === 0) return css('--mid');
+  return mix(css('--mid'), score > 0 ? css('--blue') : css('--red'), step / 5);
+}
+
+/* ---------- tooltip ---------- */
+const tip = $('tip');
+function showTip(ev, value, lines) {
+  tip.replaceChildren(h('div', { class: 'v' }, value), ...lines.map(l => h('div', { class: 's' }, l)));
+  tip.style.display = 'block';
+  const r = tip.getBoundingClientRect();
+  let x = ev.clientX + 14, y = ev.clientY + 14;
+  if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 14;
+  if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 14;
+  tip.style.left = Math.max(8, x) + 'px'; tip.style.top = Math.max(8, y) + 'px';
+}
+const hideTip = () => { tip.style.display = 'none'; };
+
+/* ---------- controls ---------- */
+function renderControls() {
+  $('slider').max = T - 1; $('slider').value = state.i;
+  $('timeLabel').textContent = clock(state.i);
+  document.querySelectorAll('#scope button').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.scope === state.scope)));
+  $('play').textContent = state.timer ? '❚❚ Pause' : '▶ Play';
+  $('sub').textContent = tickers.length + ' stocks · equal-weight start ' + pct(BASE) +
+    ' · each weight kept between ' + pct(P.w_min, 0) + ' and ' + pct(P.w_max, 0) +
+    ' · at most ' + pct(P.max_turnover, 0) + ' of the index moves per step · sentiment half-life ' + P.half_life_h + ' h';
+}
+
+/* ---------- KPI tiles ---------- */
+function renderKpis() {
+  const s = S(), i = state.i;
+  const dev = tickers.map(t => [t, s.weights[t][i] - BASE]).sort((a, b) => b[1] - a[1]);
+  const top = dev[0], bot = dev[dev.length - 1];
+  const tiles = [
+    ['Signals processed', String(s.counts[i]), 'of ' + s.counts[T - 1] + ' in this view'],
+    ['Index turnover this step', pct(s.turnover[i]), 'cap ' + pct(P.max_turnover, 0) + ' per step'],
+    ['Biggest overweight', top[1] > 0.0005 ? top[0] : '–', top[1] > 0.0005 ? sgn(top[1] * 100, 1) + ' pp vs equal weight' : 'nothing above equal weight'],
+    ['Biggest underweight', bot[1] < -0.0005 ? bot[0] : '–', bot[1] < -0.0005 ? sgn(bot[1] * 100, 1) + ' pp vs equal weight' : 'nothing below equal weight'],
+  ];
+  $('kpis').replaceChildren(...tiles.map(([l, v, hint]) => {
+    const d = h('div', { class: 'card tile' });
+    d.append(h('div', { class: 'label' }, l), h('div', { class: 'value' }, v), h('div', { class: 'hint' }, hint));
+    return d;
+  }));
+}
+
+/* ---------- small multiples ---------- */
+const PW = 220, PH = 74, PAD = 6;
+const px = i => PAD + (T === 1 ? 0 : i / (T - 1)) * (PW - 2 * PAD);
+const py = w => PH - PAD - (w / YMAX) * (PH - 2 * PAD);
+function renderSmall() {
+  const s = S(), grid = $('sm');
+  grid.replaceChildren();
+  tickers.forEach(tk => {
+    const ws = s.weights[tk];
+    const btn = h('button', { class: 'panel', type: 'button', 'aria-pressed': String(tk === state.ticker),
+      'aria-label': tk + ' weight ' + pct(ws[state.i]) });
+    const head = h('div', { class: 'head' });
+    head.append(h('span', { class: 'tk' }, tk), h('span', { class: 'wt' }, pct(ws[state.i])));
+    const g = svg('svg', { viewBox: '0 0 ' + PW + ' ' + PH, 'aria-hidden': 'true' });
+    g.append(svg('line', { x1: PAD, x2: PW - PAD, y1: py(0), y2: py(0), stroke: css('--grid'), 'stroke-width': 1 }));
+    g.append(svg('line', { x1: PAD, x2: PW - PAD, y1: py(BASE), y2: py(BASE), stroke: css('--axis'), 'stroke-width': 1 }));
+    const pts = ws.map((w, i) => px(i).toFixed(1) + ',' + py(w).toFixed(1));
+    g.append(svg('polygon', { points: px(0) + ',' + py(0) + ' ' + pts.join(' ') + ' ' + px(T - 1) + ',' + py(0),
+      fill: css('--blue'), 'fill-opacity': 0.1 }));
+    g.append(svg('polyline', { points: pts.join(' '), fill: 'none', stroke: css('--blue'), 'stroke-width': 2,
+      'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+    g.append(svg('line', { x1: px(state.i), x2: px(state.i), y1: PAD, y2: py(0), stroke: css('--muted'), 'stroke-width': 1 }));
+    const hover = svg('line', { y1: PAD, y2: py(0), stroke: css('--ink2'), 'stroke-width': 1, visibility: 'hidden' });
+    g.append(hover);
+    g.append(svg('circle', { cx: px(state.i), cy: py(ws[state.i]), r: 4, fill: css('--blue'),
+      stroke: css('--surface'), 'stroke-width': 2 }));
+    btn.append(head, g);
+    btn.addEventListener('click', () => { state.ticker = tk; renderAll(); });
+    btn.addEventListener('pointermove', ev => {
+      const r = g.getBoundingClientRect();
+      const frac = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width));
+      const idx = Math.round(((frac * PW) - PAD) / (PW - 2 * PAD) * (T - 1));
+      const k = Math.min(T - 1, Math.max(0, idx));
+      hover.setAttribute('x1', px(k)); hover.setAttribute('x2', px(k)); hover.setAttribute('visibility', 'visible');
+      showTip(ev, tk + ' ' + pct(ws[k]), [clock(k), 'sentiment ' + sgn(s.scores[tk][k]),
+        'step change ' + sgn((ws[k] - (k ? ws[k - 1] : ws[k])) * 100, 1) + ' pp']);
+    });
+    btn.addEventListener('pointerleave', () => { hover.setAttribute('visibility', 'hidden'); hideTip(); });
+    grid.append(btn);
+  });
+  $('t0').textContent = clock(0); $('t1').textContent = clock(T - 1);
+}
+
+/* ---------- table ---------- */
+function renderTable() {
+  const s = S(), i = state.i, body = document.querySelector('#tbl tbody');
+  body.replaceChildren();
+  tickers.forEach(tk => {
+    const w = s.weights[tk][i], prev = i ? s.weights[tk][i - 1] : w, d = (w - prev) * 100;
+    const tr = h('tr', { class: tk === state.ticker ? 'sel' : '', tabindex: '0', 'aria-selected': String(tk === state.ticker) });
+    const bar = h('div', { class: 'bar' });
+    const fill = h('i'); fill.style.width = (w / YMAX * 100) + '%';
+    const tick = h('b'); tick.style.left = (BASE / YMAX * 100) + '%';
+    bar.append(fill, tick);
+    const c = (cls, txt) => h('td', { class: cls }, txt);
+    const tdBar = h('td'); tdBar.append(bar);
+    tr.append(c('', tk), tdBar, c('num', pct(w)),
+      c('num', Math.abs(d) < 0.05 ? '–' : (d > 0 ? '▲ ' : '▼ ') + Math.abs(d).toFixed(1) + ' pp'),
+      c('num', sgn(s.scores[tk][i])));
+    const pick = () => { state.ticker = tk; renderAll(); };
+    tr.addEventListener('click', pick);
+    tr.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+    body.append(tr);
+  });
+}
+
+/* ---------- heatmap ---------- */
+function renderHeat() {
+  const s = S(), g = $('heat');
+  const LW = 52, CW = 40, RH = 20, GAP = 2, TOP = 4, AX = 22;
+  const W = LW + T * CW, H = TOP + tickers.length * RH + AX;
+  g.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  g.replaceChildren();
+  tickers.forEach((tk, r) => {
+    const y = TOP + r * RH;
+    g.append(svg('text', { x: LW - 8, y: y + RH / 2 + 4, 'text-anchor': 'end', 'font-size': 12,
+      fill: tk === state.ticker ? css('--ink') : css('--muted'), 'font-weight': tk === state.ticker ? 700 : 400 }, tk));
+    for (let c = 0; c < T; c++) {
+      const sc = s.scores[tk][c];
+      const cell = svg('rect', { x: LW + c * CW, y, width: CW - GAP, height: RH - GAP, rx: 2, fill: heatColor(sc), cursor: 'pointer',
+        tabindex: '-1' });
+      cell.addEventListener('pointermove', ev => showTip(ev, tk + ' ' + sgn(sc), [clock(c), 'weight ' + pct(s.weights[tk][c])]));
+      cell.addEventListener('pointerleave', hideTip);
+      cell.addEventListener('click', () => { state.ticker = tk; state.i = c; renderAll(); });
+      g.append(cell);
+    }
+  });
+  const x = LW + state.i * CW - 1;
+  g.append(svg('rect', { x, y: TOP - 2, width: CW, height: tickers.length * RH + 2, fill: 'none',
+    stroke: css('--ink'), 'stroke-width': 1.5, rx: 3, 'pointer-events': 'none' }));
+  const every = Math.max(1, Math.ceil(T / 10));
+  for (let c = 0; c < T; c += every)
+    g.append(svg('text', { x: LW + c * CW + (CW - GAP) / 2, y: H - 6, 'text-anchor': 'middle', 'font-size': 11,
+      fill: css('--muted') }, hhmm(D.times[c])));
+  const lg = $('legend'); lg.replaceChildren();
+  const neg = h('span', { class: 'sw' }), pos = h('span', { class: 'sw' });
+  for (let k = 5; k >= 1; k--) { const i = h('i'); i.style.background = heatColor(-k / 5); neg.append(i); }
+  for (let k = 1; k <= 5; k++) { const i = h('i'); i.style.background = heatColor(k / 5); pos.append(i); }
+  const mid = h('span', { class: 'sw' }); const mi = h('i'); mi.style.background = css('--mid'); mid.append(mi);
+  lg.append(h('span', {}, '−1 negative'), neg, mid, pos, h('span', {}, 'positive +1'));
+}
+
+/* ---------- explanation + feed ---------- */
+function renderWhy() {
+  const s = S(), i = state.i, tk = state.ticker, box = $('why');
+  box.replaceChildren(h('h2', {}, 'Why is ' + tk + ' at ' + pct(s.weights[tk][i]) + '?'));
+  const sc = s.scores[tk][i], target = s.targets[tk][i], w = s.weights[tk][i];
+  let line = 'Sentiment score ' + sgn(sc) + ' → target weight ' + pct(target);
+  if (Math.abs(target - w) > 0.0005) line += ' (moving there gradually: the turnover cap limits each step)';
+  box.append(h('p', { class: 'note' }, line));
+  const list = s.drivers[tk][i];
+  if (!list.length) { box.append(h('div', { class: 'empty' }, 'No recent signals for ' + tk + ' in this view, so its score is neutral.')); return; }
+  list.forEach(d => {
+    const row = h('div', { class: 'drv' });
+    row.append(h('div', { class: 'txt' }, d.text));
+    const m = h('div', { class: 'meta' });
+    m.append(h('span', { class: 'tag' }, d.source), document.createTextNode(
+      (d.contribution > 0 ? '▲ pushes weight up ' : '▼ pushes weight down ') + sgn(d.contribution) +
+      ' · sentiment ' + sgn(d.sentiment) + ' · ' + d.event_type + ' · impact ' + d.impact + ' · ' + d.age_h + ' h ago'));
+    row.append(m); box.append(row);
+  });
+}
+function renderFeed() {
+  const box = $('feed'), now = D.epochs[state.i];
+  box.replaceChildren(h('h2', {}, 'Latest signals'), h('p', { class: 'note' }, 'Newest first, up to the selected time.'));
+  const items = D.feed.filter(f => f.epoch <= now && (state.scope === 'all' || f.source === state.scope)).slice(-8).reverse();
+  if (!items.length) { box.append(h('div', { class: 'empty' }, 'No signals yet at this time.')); return; }
+  items.forEach(f => {
+    const row = h('div', { class: 'item' });
+    row.append(h('div', { class: 'meta' }, hhmm(f.ts)), h('div', { class: 'meta' }, f.ticker + ' ' + (f.sentiment >= 0 ? '▲' : '▼')));
+    const body = h('div');
+    body.append(h('div', { class: 'txt', title: f.text }, f.text),
+      h('div', { class: 'meta' }, f.source + ' · ' + sgn(f.sentiment) + ' · ' + f.event_type + ' · impact ' + f.impact));
+    row.append(body); box.append(row);
+  });
+}
+
+function renderAll() {
+  if (!state.ticker) {
+    const s = S(), i = state.i;
+    state.ticker = tickers.slice().sort((a, b) => Math.abs(s.weights[b][i] - BASE) - Math.abs(s.weights[a][i] - BASE))[0];
+  }
+  renderControls(); renderKpis(); renderSmall(); renderTable(); renderHeat(); renderWhy(); renderFeed();
+}
+
+/* ---------- events ---------- */
+$('slider').addEventListener('input', e => { state.i = +e.target.value; renderAll(); });
+document.querySelectorAll('#scope button').forEach(b => b.addEventListener('click', () => { state.scope = b.dataset.scope; renderAll(); }));
+$('play').addEventListener('click', () => {
+  if (state.timer) { clearInterval(state.timer); state.timer = null; renderControls(); return; }
+  if (state.i >= T - 1) state.i = 0;
+  state.timer = setInterval(() => {
+    if (state.i >= T - 1) { clearInterval(state.timer); state.timer = null; renderControls(); return; }
+    state.i++; renderAll();
+  }, 900);
+  renderAll();
+});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderAll);
+renderAll();
+</script>
+</body>
+</html>

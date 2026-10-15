@@ -1,0 +1,12 @@
+transformers>=4.40
+torch
+fastapi
+uvicorn
+streamlit
+plotly
+pandas
+numpy
+yfinance
+feedparser
+requests
+openpyxl

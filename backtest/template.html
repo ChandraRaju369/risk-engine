@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backtest</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10); --blue: #2a78d6; --gray: #898781;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark; --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10); --blue: #3987e5; --gray: #898781;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark; --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10); --blue: #3987e5; --gray: #898781;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 22px; margin: 0 0 2px; font-weight: 650; }
+.sub { color: var(--ink2); margin: 0 0 16px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.card h2 { font-size: 14px; margin: 0 0 2px; font-weight: 650; }
+.note { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+.tile .label { color: var(--muted); font-size: 12px; }
+.tile .value { font-size: 28px; font-weight: 650; line-height: 1.2; margin-top: 2px; }
+.tile .hint { color: var(--ink2); font-size: 12px; margin-top: 2px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; align-items: start; }
+.legend { display: flex; gap: 18px; margin: 0 0 6px; color: var(--ink2); font-size: 13px; flex-wrap: wrap; }
+.legend span::before { content: ""; display: inline-block; width: 18px; height: 0; border-top: 2px solid var(--c); margin-right: 8px; vertical-align: middle; }
+svg { display: block; width: 100%; height: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th { text-align: left; color: var(--muted); font-weight: 500; font-size: 12px; padding: 0 8px 6px; }
+td { padding: 6px 8px; border-top: 1px solid var(--grid); }
+td.num, th.num { text-align: right; }
+tr.cur td { background: color-mix(in srgb, var(--blue) 10%, transparent); font-weight: 600; }
+.verdict { margin: 12px 0 0; padding: 10px 12px; border-left: 3px solid var(--blue); background: color-mix(in srgb, var(--blue) 6%, transparent); border-radius: 0 6px 6px 0; }
+ul { margin: 6px 0 0; padding-left: 18px; color: var(--ink2); }
+li { margin: 4px 0; }
+#tip { position: fixed; pointer-events: none; z-index: 10; display: none; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--axis); border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+#tip .v { font-weight: 650; font-size: 13px; } #tip .s { color: var(--ink2); }
+@media (max-width: 860px) { .kpis { grid-template-columns: repeat(2, 1fr); } .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Backtest: sentiment-tilted index vs equal weight</h1>
+  <p class="sub" id="sub"></p>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card">
+    <h2>Growth of the two indexes</h2>
+    <p class="note">Cumulative return after trading costs. Hover the chart for a day's values.</p>
+    <div class="legend"><span style="--c:var(--blue)">Sentiment-tilted</span><span style="--c:var(--gray)">Equal weight</span></div>
+    <svg id="chart" role="img" aria-label="Cumulative return of the sentiment-tilted index and the equal-weight index"></svg>
+  </div>
+
+  <div class="row">
+    <div class="card" id="stats"></div>
+    <div class="card" id="sens"></div>
+  </div>
+  <div class="card" id="limits" style="margin-top:16px"></div>
+</div>
+<div id="tip" role="tooltip"></div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const R = JSON.parse(document.getElementById('data').textContent);
+const M = R.metrics, S = R.stats, meta = R.meta, N = R.dates.length;
+const NS = 'http://www.w3.org/2000/svg', $ = id => document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const pct = (x, d = 1) => (x >= 0 ? '+' : '−') + Math.abs(x * 100).toFixed(d) + '%';
+const pctU = (x, d = 1) => (x * 100).toFixed(d) + '%';
+const num = (x, d = 2) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(d);
+function svg(tag, a, t) { const e = document.createElementNS(NS, tag); for (const k in a || {}) e.setAttribute(k, a[k]); if (t != null) e.textContent = t; return e; }
+function h(tag, a, t) { const e = document.createElement(tag); for (const k in a || {}) { if (k === 'class') e.className = a[k]; else e.setAttribute(k, a[k]); } if (t != null) e.textContent = t; return e; }
+
+$('sub').textContent = meta.start + ' to ' + meta.end + ' · ' + meta.tickers.length + ' stocks · ' + meta.headlines +
+  ' headlines · daily rebalance · ' + meta.cost_bps + ' bps trading cost · tilt ' + meta.k + ' · sentiment half-life ' + meta.half_life_days + ' days';
+
+/* KPI tiles */
+const tiles = [
+  ['Total return', pct(M.tilted.total_return), 'equal weight ' + pct(M.equal.total_return)],
+  ['Sharpe ratio', M.tilted.sharpe.toFixed(2), 'equal weight ' + M.equal.sharpe.toFixed(2)],
+  ['Worst drawdown', pctU(M.tilted.max_drawdown), 'equal weight ' + pctU(M.equal.max_drawdown)],
+  ['Daily turnover', pctU(M.tilted.avg_turnover, 2), 'equal weight ' + pctU(M.equal.avg_turnover, 2)],
+];
+$('kpis').replaceChildren(...tiles.map(([l, v, hint]) => {
+  const d = h('div', { class: 'card tile' });
+  d.append(h('div', { class: 'label' }, l), h('div', { class: 'value' }, v), h('div', { class: 'hint' }, hint));
+  return d;
+}));
+
+/* line chart */
+function niceStep(range) { const raw = range / 5, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+  return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * p; }
+const tip = $('tip');
+function drawChart() {
+  const W = 900, H = 340, L = 52, Rm = 120, T = 14, B = 28, g = $('chart');
+  g.setAttribute('viewBox', '0 0 ' + W + ' ' + H); g.replaceChildren();
+  const a = R.tilted.map(x => x - 1), b = R.equal.map(x => x - 1);
+  let lo = Math.min(0, ...a, ...b), hi = Math.max(0, ...a, ...b);
+  const step = niceStep((hi - lo) || 0.02); lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+  const x = i => L + (N === 1 ? 0 : i / (N - 1)) * (W - L - Rm), y = v => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+  for (let v = lo; v <= hi + 1e-9; v += step) {
+    g.append(svg('line', { x1: L, x2: W - Rm, y1: y(v), y2: y(v), stroke: Math.abs(v) < 1e-9 ? css('--axis') : css('--grid'), 'stroke-width': 1 }));
+    g.append(svg('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: css('--muted') }, (v * 100).toFixed(0) + '%'));
+  }
+  let lastMonth = '';
+  R.dates.forEach((d, i) => { const m = d.slice(0, 7); if (m !== lastMonth) { lastMonth = m;
+    g.append(svg('text', { x: x(i), y: H - 8, 'font-size': 11, fill: css('--muted') },
+      new Date(d + 'T00:00:00Z').toLocaleString('en', { month: 'short', timeZone: 'UTC' }))); } });
+  const line = (arr, color) => svg('polyline', { points: arr.map((v, i) => x(i).toFixed(1) + ',' + y(v).toFixed(1)).join(' '),
+    fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' });
+  g.append(line(b, css('--gray')), line(a, css('--blue')));
+  // end labels (kept apart if they would collide)
+  let ya = y(a[N - 1]), yb = y(b[N - 1]);
+  if (Math.abs(ya - yb) < 15) { const mid = (ya + yb) / 2, off = 8; if (ya <= yb) { ya = mid - off; yb = mid + off; } else { ya = mid + off; yb = mid - off; } }
+  g.append(svg('text', { x: W - Rm + 8, y: ya + 4, 'font-size': 12, 'font-weight': 600, fill: css('--ink') }, 'Tilted ' + pct(a[N - 1])));
+  g.append(svg('text', { x: W - Rm + 8, y: yb + 4, 'font-size': 12, fill: css('--ink2') }, 'Equal ' + pct(b[N - 1])));
+  g.append(svg('circle', { cx: x(N - 1), cy: y(a[N - 1]), r: 4, fill: css('--blue'), stroke: css('--surface'), 'stroke-width': 2 }));
+  g.append(svg('circle', { cx: x(N - 1), cy: y(b[N - 1]), r: 4, fill: css('--gray'), stroke: css('--surface'), 'stroke-width': 2 }));
+  // hover layer
+  const cross = svg('line', { y1: T, y2: H - B, stroke: css('--ink2'), 'stroke-width': 1, visibility: 'hidden' });
+  const da = svg('circle', { r: 4, fill: css('--blue'), stroke: css('--surface'), 'stroke-width': 2, visibility: 'hidden' });
+  const db = svg('circle', { r: 4, fill: css('--gray'), stroke: css('--surface'), 'stroke-width': 2, visibility: 'hidden' });
+  g.append(cross, db, da);
+  const hit = svg('rect', { x: L, y: T, width: W - L - Rm, height: H - T - B, fill: 'transparent' });
+  hit.addEventListener('pointermove', ev => {
+    const r = g.getBoundingClientRect(), px = (ev.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(N - 1, Math.round((px - L) / (W - L - Rm) * (N - 1))));
+    cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i)); cross.setAttribute('visibility', 'visible');
+    da.setAttribute('cx', x(i)); da.setAttribute('cy', y(a[i])); da.setAttribute('visibility', 'visible');
+    db.setAttribute('cx', x(i)); db.setAttribute('cy', y(b[i])); db.setAttribute('visibility', 'visible');
+    tip.replaceChildren(h('div', { class: 'v' }, R.dates[i]),
+      h('div', { class: 's' }, 'Sentiment-tilted ' + pct(a[i])), h('div', { class: 's' }, 'Equal weight ' + pct(b[i])),
+      h('div', { class: 's' }, 'Difference ' + num((a[i] - b[i]) * 100, 1) + ' pp'));
+    tip.style.display = 'block';
+    let tx = ev.clientX + 14; if (tx + 200 > innerWidth) tx = ev.clientX - 200;
+    tip.style.left = tx + 'px'; tip.style.top = (ev.clientY + 14) + 'px';
+  });
+  hit.addEventListener('pointerleave', () => { tip.style.display = 'none';
+    [cross, da, db].forEach(e => e.setAttribute('visibility', 'hidden')); });
+  g.append(hit);
+}
+drawChart(); matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawChart);
+
+/* stats card */
+const sig = Math.abs(S.excess_t) >= 2;
+const stats = $('stats');
+stats.append(h('h2', {}, 'Is the difference real?'), h('p', { class: 'note' }, 'Tilted minus equal weight, daily, after costs.'));
+const tbl = h('table'); const tb = h('tbody');
+[['Extra return per year, after costs', pct(S.excess_annual) + ' (t = ' + S.excess_t.toFixed(2) + ')'],
+ ['Extra return per year, before costs', pct(S.excess_gross_annual)],
+ ['Information ratio', S.info_ratio.toFixed(2)],
+ ['Tracking error', pctU(S.tracking_error)],
+ ['Days the tilt beat equal weight', pctU(S.win_rate, 0)],
+ ['Mean daily rank correlation (IC)', num(S.ic_mean, 3) + ' (t = ' + S.ic_t.toFixed(2) + ', ' + S.ic_days + ' days)']].forEach(([k, v]) => {
+  const tr = h('tr'); tr.append(h('td', {}, k), h('td', { class: 'num' }, v)); tb.append(tr); });
+tbl.append(tb); stats.append(tbl);
+stats.append(h('p', { class: 'verdict' }, sig
+  ? 'The extra return is statistically significant at the usual |t| ≥ 2 level for this period. Check it on other periods before relying on it.'
+  : 'The extra return is not statistically distinguishable from zero (|t| < 2): over this much data we cannot tell the tilt apart from luck.'));
+stats.append(h('p', { class: 'note', style: 'margin-top:10px' },
+  'IC = each day, how well yesterday’s sentiment ranking of the stocks matched today’s return ranking. 0 means no predictive value; around +0.02 to +0.05 is typical for a real but small news signal.'));
+
+/* sensitivity card */
+const sens = $('sens');
+sens.append(h('h2', {}, 'How much does the tilt strength matter?'), h('p', { class: 'note' }, 'Same data, different tilt strength k. A real signal should help across a range, not at one lucky setting.'));
+if (!R.sensitivity.length) sens.append(h('p', { class: 'note' }, 'Skipped (run without --no-sensitivity).'));
+else {
+  const t = h('table'); const th = h('thead'); const hr = h('tr');
+  ['Tilt k', 'Total return', 'Sharpe', 'Extra / year'].forEach((c, i) => hr.append(h('th', i ? { class: 'num' } : {}, c)));
+  th.append(hr); const b = h('tbody');
+  R.sensitivity.forEach(s => { const tr = h('tr', { class: s.k === meta.k ? 'cur' : '' });
+    tr.append(h('td', {}, String(s.k) + (s.k === meta.k ? ' (used above)' : '')), h('td', { class: 'num' }, pct(s.total_return)),
+      h('td', { class: 'num' }, s.sharpe.toFixed(2)), h('td', { class: 'num' }, pct(s.excess_annual))); b.append(tr); });
+  t.append(th, b); sens.append(t);
+}
+
+/* limitations */
+const lim = $('limits');
+lim.append(h('h2', {}, 'How to read this honestly'));
+const ul = h('ul');
+[ 'One time window only (' + meta.start + ' to ' + meta.end + '). Run other years (for example 2018, or 2020 up to June) before drawing conclusions.',
+  'No peeking: weights are set at each 4 pm New York close using only earlier news, and earn the next day’s return. Date-only headlines count as after-close.',
+  'Parameters were fixed before looking at results, not tuned on them. The table above shows how much they matter.',
+  'Costs: ' + meta.cost_bps + ' bps on every unit traded, including drift back to target. No slippage, taxes or borrowing, and only large US stocks (survivorship bias is small but not zero).',
+  'The headlines are mostly analyst rating notes. Sentiment from these is a weaker signal than breaking news or social chatter would be.',
+  'A backtest is evidence about the past, not a forecast.' ].forEach(t => ul.append(h('li', {}, t)));
+lim.append(ul);
+</script>
+</body>
+</html>

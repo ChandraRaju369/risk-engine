@@ -1,0 +1,192 @@
+{
+ "threshold": 0.25,
+ "sentiment": {
+  "n": 100,
+  "accuracy": 0.63,
+  "ci": [
+   0.5322034757513312,
+   0.7181778743049083
+  ],
+  "macro_f1": 0.6057114588954848,
+  "majority_class": "neutral",
+  "majority_baseline": 0.57,
+  "polarity_accuracy": 0.8604651162790697,
+  "polarity_n": 43,
+  "polarity_ci": [
+   0.7273612340557432,
+   0.9344436573228605
+  ],
+  "per_class": {
+   "positive": {
+    "precision": 0.625,
+    "recall": 0.5555555555555556,
+    "f1": 0.5882352941176471,
+    "support": 27
+   },
+   "neutral": {
+    "precision": 0.7115384615384616,
+    "recall": 0.6491228070175439,
+    "f1": 0.6788990825688075,
+    "support": 57
+   },
+   "negative": {
+    "precision": 0.4583333333333333,
+    "recall": 0.6875,
+    "f1": 0.5499999999999999,
+    "support": 16
+   }
+  },
+  "confusion": {
+   "positive": {
+    "positive": 15,
+    "neutral": 10,
+    "negative": 2
+   },
+   "neutral": {
+    "positive": 9,
+    "neutral": 37,
+    "negative": 11
+   },
+   "negative": {
+    "positive": 0,
+    "neutral": 5,
+    "negative": 11
+   }
+  },
+  "by_source": {
+   "news": {
+    "n": 100,
+    "accuracy": 0.63
+   }
+  },
+  "failures": [
+   {
+    "text": "Despite Tariff Fears, Market Shows Signs Of Resilience As Retail Earnings Continue",
+    "your_sentiment": "neutral",
+    "engine_sentiment": 0.9315
+   },
+   {
+    "text": "Mid-Afternoon Market Update: Dow Rises Over 200 Points; Ocugen Shares Spike Higher",
+    "your_sentiment": "neutral",
+    "engine_sentiment": 0.902
+   },
+   {
+    "text": "Pete Najarian Sees Unusual Activity In Bank Of America And Macy's",
+    "your_sentiment": "neutral",
+    "engine_sentiment": -0.8955
+   },
+   {
+    "text": "Study: ViiV Healthcare's 2-Drug HIV Regimen As Effective As 3",
+    "your_sentiment": "neutral",
+    "engine_sentiment": 0.8837
+   },
+   {
+    "text": "Semiconductor Equipment Billings Stay above $2B in June",
+    "your_sentiment": "neutral",
+    "engine_sentiment": 0.8758
+   },
+   {
+    "text": "How 7 New Laws Affected Stocks In The Last Week",
+    "your_sentiment": "neutral",
+    "engine_sentiment": -0.8517
+   },
+   {
+    "text": "Mid-Morning Market Update: Markets Open Higher; Deere Earnings Miss Views",
+    "your_sentiment": "neutral",
+    "engine_sentiment": 0.851
+   },
+   {
+    "text": "Buy Square (SQ) Stock Still on the Dip Ahead of Q1 2019 Earnings?",
+    "your_sentiment": "neutral",
+    "engine_sentiment": -0.8386
+   }
+  ]
+ },
+ "event": {
+  "n": 100,
+  "accuracy": 0.67,
+  "ci": [
+   0.5730516033971139,
+   0.7543701620610456
+  ],
+  "by_method": {
+   "none": {
+    "n": 69,
+    "accuracy": 0.7391304347826086
+   },
+   "rules": {
+    "n": 31,
+    "accuracy": 0.5161290322580645
+   }
+  },
+  "top_confusions": [
+   {
+    "human": "Regulatory",
+    "engine": "Other",
+    "count": 6
+   },
+   {
+    "human": "Other",
+    "engine": "Credit Event",
+    "count": 5
+   },
+   {
+    "human": "Product Launch",
+    "engine": "Other",
+    "count": 3
+   },
+   {
+    "human": "Macroeconomic",
+    "engine": "Other",
+    "count": 3
+   },
+   {
+    "human": "Geopolitical",
+    "engine": "Other",
+    "count": 2
+   }
+  ],
+  "failures": [
+   {
+    "text": "Warren Buffett Gives Thumbs-Up To New Execs, Notes Earnings Impact From Kraft Heinz In Annual Berkshire Hathaway Letter",
+    "your_event": "Leadership Change",
+    "engine_event": "Earnings"
+   },
+   {
+    "text": "Shares of many semiconductor companies are trading higher as investors are optimistic of a trade deal with China that could be reached after President Trump said a Chinese delegation is set to come to the U.S. next week for continued trade talks.",
+    "your_event": "Geopolitical",
+    "engine_event": "Other"
+   },
+   {
+    "text": "How 7 New Laws Affected Stocks In The Last Week",
+    "your_event": "Regulatory",
+    "engine_event": "Other"
+   },
+   {
+    "text": "Chips Stocks Rattled As Companies Halt Supplying China's Huawei",
+    "your_event": "Geopolitical",
+    "engine_event": "Other"
+   },
+   {
+    "text": "The Daily Biotech Pulse: Reata Leaps On Positive Readout, Takeda Divests, FDA Nod For Akorn, J&J Earnings",
+    "your_event": "Other",
+    "engine_event": "Regulatory"
+   },
+   {
+    "text": "From J&J Q2 Earnings Conference Call: Exec Commenting On Oklahoma Opioid Case Says Facts Do Not Align With What State Is Claiming",
+    "your_event": "Regulatory",
+    "engine_event": "Earnings"
+   },
+   {
+    "text": "Bank Of America's Cathy Bessant Is Among Executives Who Remain In Talks With Wells Fargo Concerning CEO Position",
+    "your_event": "Leadership Change",
+    "engine_event": "Other"
+   },
+   {
+    "text": "J&J's Janssen Presents Four-Year TREMFYA Data Showing Maintained Rates Of Skin Clearance In Adult Patients With Moderate To Severe Plaque Psoriasis",
+    "your_event": "Product Launch",
+    "engine_event": "Other"
+   }
+  ]
+ }
+}

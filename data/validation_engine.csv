@@ -1,0 +1,101 @@
+id,source,ticker,text,engine_sentiment,engine_confidence,engine_event,engine_event_method,engine_impact
+1,news,KO,"Warren Buffett Gives Thumbs-Up To New Execs, Notes Earnings Impact From Kraft Heinz In Annual Berkshire Hathaway Letter",0.1139,0.6793,Earnings,rules,2.8
+2,news,JPM,Dow Jones Today: Futures Rally As Trump Trade Meeting Looms; Oil Prices Climb,0.1724,0.4956,Macroeconomic,rules,3.7
+3,news,PFE,"Fitbit, Pfizer, And More 'Fast Money' Picks For October 30",0.023,0.9429,Other,none,1.8
+4,news,NVDA,Shares of many semiconductor companies are trading higher as investors are optimistic of a trade deal with China that could be reached after President Trump said a Chinese delegation is set to come to the U.S. next week for continued trade talks.,0.8679,0.9174,Other,none,3.0
+5,news,JPM,Tracking Glenn Greenberg's Brave Warrior Advisors Portfolio - Q4 2018 Update,0.0085,0.9455,Other,none,1.8
+6,news,GOOGL,"'...Google to spend $13B to build new data centers in Nevada, Ohio, Texas, and Nebraska; tech giant will also double its Virginia-based workforce with expanded offices and more data center space and will also expand its New York City campus' -CNBC Tweets",0.9186,0.9284,Other,none,3.1
+7,news,PFE,"Jim Cramer Gives His Opinion On eBay, Pfizer And More",-0.0025,0.9454,Other,none,1.8
+8,news,PFE,How 7 New Laws Affected Stocks In The Last Week,-0.8517,0.8667,Other,none,2.9
+9,news,JNJ,"Pot Stocks, ETFs, Top News And Data From The Cannabis Industry This Week",-0.0006,0.9417,Other,none,1.8
+10,news,JPM,The Retirees' Dividend Portfolio - John And Jane's June Taxable Account Update: The Danger Of Making Assumptions,-0.0455,0.8945,Other,none,1.8
+11,news,NVDA,Chips Stocks Rattled As Companies Halt Supplying China's Huawei,-0.9488,0.9593,Other,none,3.1
+12,news,XOM,8 Energy Stocks Moving In Friday's Pre-Market Session,0.0341,0.5295,Other,none,1.7
+13,news,NVDA,Semiconductor Equipment Billings Stay above $2B in June,0.8758,0.9088,Other,none,3.0
+14,news,JNJ,"The Daily Biotech Pulse: Reata Leaps On Positive Readout, Takeda Divests, FDA Nod For Akorn, J&J Earnings",0.4986,0.5214,Regulatory,rules,4.4
+15,news,JPM,Tracking Warren Buffett's Berkshire Hathaway Portfolio - Q4 2018 Update,-0.0083,0.9422,Other,none,1.8
+16,news,JNJ,From J&J Q2 Earnings Conference Call: Exec Commenting On Oklahoma Opioid Case Says Facts Do Not Align With What State Is Claiming,-0.5951,0.6269,Earnings,rules,4.1
+17,news,NVDA,"Earnings Thoughts Turn To Retail Later This Week, But Uber Starts Parade Today",-0.0071,0.9105,Earnings,rules,2.7
+18,news,BAC,Investor Movement Index: November 2019,-0.0497,0.8924,Other,none,1.8
+19,news,BAC,Bank Of America's Cathy Bessant Is Among Executives Who Remain In Talks With Wells Fargo Concerning CEO Position,-0.0114,0.9369,Other,none,1.8
+20,news,NVDA,"Analysts Upbeat On AMD's Product Roadmap, Execution",0.1835,0.7217,Other,none,1.9
+21,news,JNJ,"'Trump says his solution to the epidemic of veteran suicides is some new ""stimulant"" produced by Johnson & Johnson that he's instructed the government to buy in large quantities' -Tweets Aaron Rupar",0.2216,0.6972,Other,none,2.0
+22,news,BAC,Stocks That Hit 52-Week Highs On Monday,0.1622,0.6719,Other,none,1.9
+23,news,GOOGL,Detroit To Host Forbes Under 30 Summit Through 2021: 'A Place For Innovation',0.6743,0.685,Other,none,2.6
+24,news,JNJ,J&J's Janssen Presents Four-Year TREMFYA Data Showing Maintained Rates Of Skin Clearance In Adult Patients With Moderate To Severe Plaque Psoriasis,0.5502,0.72,Other,none,2.4
+25,news,PFE,"PreMarket Prep Opening NYSE Imbalance Update: Bank Of America 335k Shares To Buy, JP Morgan 143k To Buy; Coca-Cola 274k To Buy, Pfizer 251k To Buy, AT&T 224K To Buy, Verizon 130k To Buy",0.0423,0.9161,Other,none,1.8
+26,news,PFE,Akcea and Ionis Each to Receive a $125M Upfront Payment From Pfizer for the Exclusive Licensing of AKCEA-ANGPTL3-L,0.8296,0.8393,Other,none,2.9
+27,news,GOOGL,The Verge Article Highlights New YouTube Policy Stating That Co. Has No Obligation To Host Content Or Keep Videos Up,-0.0003,0.9209,Other,none,1.8
+28,news,NVDA,"11 Stocks To Watch For February 14, 2019",-0.0574,0.8841,Other,none,1.8
+29,news,BAC,Pete Najarian Sees Unusual Activity In Bank Of America And Macy's,-0.8955,0.9108,Other,none,3.0
+30,news,GOOGL,Department Of Justice Files Criminal Charges Against Anthony Levandowski Alleging Theft Of Alphabet Trade Secrets; Justice Department Says Levandowski Stole Engineering Details For Lidar Technology Before Eventually Working At Uber,-0.6702,0.6942,Other,none,2.6
+31,news,GOOGL,Report: US Officials Move To Block Trans-Pacific Cable,-0.9338,0.9501,Other,none,3.1
+32,news,GOOGL,"'Arbutus Biopharma Corp - Co Expects To Record A Charge Of About $5.8 Mln, Excluding The Amount Of Any Potential Award Of Attorneys' Fees In Q3' -Bloomberg",0.0052,0.8448,Other,none,1.7
+33,news,GOOGL,'States' massive Google antitrust probe will expand into search and Android businesses' -CNBC,0.062,0.8724,Regulatory,rules,3.3
+34,news,PFE,Pfizer shares are trading lower after the company reported worse-than-expected Q2 sales results and lowered its FY19 guidance below analyst estimates.,-0.9675,0.9753,Earnings,rules,5.8
+35,news,JPM,"BofA (BAC) Beats Q4 Earnings & Revenue Estimates, Costs Down",-0.4596,0.6962,Earnings,rules,3.8
+36,news,PFE,28 Healthcare Stocks Moving In Tuesday's Pre-Market Session,-0.154,0.4236,Other,none,1.8
+37,news,PFE,"Apple, Boeing And The Fed: A Full Day Ahead As Earnings Help Recharge Wall Street",0.5727,0.5909,Macroeconomic,rules,5.3
+38,news,DIS,"Dow Jones Today Gets A Disney+ Update As Dick's, Best Buy Drive Retail Rally",0.1888,0.7835,Other,none,2.0
+39,news,GOOGL,Shares of several large-cap companies are trading lower in sympathy with the overall market on escalated trade tensions after China announced it plans to impose a 5% to 10% tariff rate on $75 billion worth of U.S. goods.,-0.9619,0.971,Geopolitical,rules,8.8
+40,news,JNJ,"Benzinga's Top Upgrades, Downgrades For November 20, 2019",-0.5645,0.5903,Credit Event,rules,6.1
+41,news,JPM,Thirteen Monster Stock Market Predictions For The Week of April 8,-0.084,0.8737,Other,none,1.9
+42,news,PFE,PreMarket Prep Opening NYSE Imbalance Update: Pfizer 112k Shares To Sell; Bank of America 90k To Sell; Square 40k To Buy,0.009,0.9067,Other,none,1.8
+43,news,NVDA,Stocks That Hit 52-Week Highs On Monday,0.1622,0.6719,Other,none,1.9
+44,news,NVDA,"UPDATE: Wells Fargo Maintains Overweight On NVIDIA, Raises Target To $270 Names Co. Firm's 'top Semi idea into 2020' Driven By Firm's Expectation 'of a meaningful reacceleration in data center growth through 2020' And Continued Strong Notebook Adoption",0.9308,0.951,Other,none,3.1
+45,news,GOOGL,Google CEO Says Co to Invest €3B to Expand European Data Centers,0.7712,0.7793,Other,none,2.7
+46,news,NVDA,"7 Stocks To Watch For May 16, 2019",-0.0313,0.8992,Other,none,1.8
+47,news,GOOGL,"Tennessee Attorney General Says Attorney Generals Will Be Looking Into Alphabet/Google Acquisitions, Cos. Google Took Stakes In Then Rolled Out Similar Products",0.0292,0.9369,Other,none,1.8
+48,news,NVDA,"Benzinga's Top Upgrades, Downgrades For February 11, 2019",-0.6152,0.6379,Credit Event,rules,6.5
+49,news,JNJ,46 Stocks Moving In Tuesday's Mid-Day Session,-0.2265,0.6517,Other,none,2.0
+50,news,XOM,"UBS Maintains Neutral on Exxon Mobil, Lowers Price Target to $75",0.1326,0.5109,Other,none,1.8
+51,news,XOM,"As Earnings Season Rolls On, Many Companies Have Beaten Expectations",0.7382,0.8449,Earnings,rules,4.9
+52,news,JPM,Stocks And Precious Metals Charts - Citi's Traces In The Gold Sell Off,-0.1683,0.6838,Other,none,1.9
+53,news,JPM,JPMorgan streamlines CIB exec roles: Bloomberg,0.001,0.9418,Other,none,1.8
+54,news,PFE,FDA Approves First Generics Of Lyrica,0.1507,0.8284,Regulatory,rules,3.6
+55,news,NVDA,"Bernstein Downgrades NVIDIA to Market Perform, Lowers Price Target to $175",-0.7301,0.7892,Credit Event,rules,7.5
+56,news,NVDA,"Despite Tariff Fears, Market Shows Signs Of Resilience As Retail Earnings Continue",0.9315,0.9545,Geopolitical,rules,8.6
+57,news,NVDA,Mid-Morning Market Update: Markets Open Higher; Deere Earnings Miss Views,0.851,0.9127,Earnings,rules,5.3
+58,news,GOOGL,"The Lesson From The Capital One Data Breach: The Cloud Is Vulnerable, And We Shouldn't Forget It",-0.2012,0.5962,Other,none,1.9
+59,news,NVDA,5 Technology Stocks Moving In Wednesday's Pre-Market Session,-0.0183,0.5021,Other,none,1.7
+60,news,BAC,TD Ameritrade Senior Trading Specialist Shawn Cruz On Expectations For Warren Buffett's 13F Tells Benzinga: 'I wouldn't be surprising to see he continued to buy financials. The pullback in the sector presented a good buying opportunity',0.8579,0.8769,Other,none,2.9
+61,news,PFE,GlycoMimetics Falls 50% After Disappointing Results For Sickle Cell Drug Trial,-0.9527,0.9679,Other,none,3.2
+62,news,NVDA,Semiconductor and microchip stocks are trading higher after Microchip Technology reported strong earnings and Skyworks reported a $2 billion buyback.,0.9211,0.9495,Earnings,rules,5.6
+63,news,KO,The Street Debates Monster Beverage's Quarter,-0.007,0.9358,Other,none,1.8
+64,news,BAC,"Benzinga's Top Upgrades, Downgrades For September 6, 2019",-0.4703,0.4966,Credit Event,rules,5.5
+65,news,JPM,Buy Square (SQ) Stock Still on the Dip Ahead of Q1 2019 Earnings?,-0.8386,0.8658,Earnings,rules,5.2
+66,news,XOM,An Eventful Energy Week Looms For These ETFs,0.2149,0.7425,Other,none,2.0
+67,news,XOM,"Benzinga's Top Upgrades, Downgrades For May 13, 2019",-0.475,0.5008,Credit Event,rules,5.5
+68,news,JPM,JPMorgan Chase: Still The Best And Still A Buy,0.6348,0.6502,Other,none,2.5
+69,news,NVDA,40 Stocks Moving In Monday's Mid-Day Session,-0.3814,0.4861,Other,none,2.1
+70,news,KO,60 Biggest Movers From Yesterday,0.1819,0.7705,Other,none,2.0
+71,news,KO,Coca-Cola Option Alert: Nov 15 $50 Calls at the Ask: 2000 @ $4.05 vs 23522 OI; Earnings 10/18 Before Open Ref=$53.448,0.0136,0.8221,Earnings,rules,2.6
+72,news,KO,This Day In Market History: Bill Gates Unveils Microsoft Excel,0.0441,0.9219,Product Launch,rules,2.3
+73,news,BAC,"JP Morgan Maintains Overweight on Bank of America, Lowers Price Target to $30",0.4771,0.69,Other,none,2.3
+74,news,PFE,Pfizer Announces Phase 3 Study Of LYRICA Did Not Meet Its Primary Endpoint,-0.9339,0.9427,Other,none,3.1
+75,news,BAC,"Earnings, Econ Numbers And The Beige Book Pepper The Second Round of The WeTrader Competition",-0.0019,0.9449,Earnings,rules,2.7
+76,news,PFE,"Shares of several drug manufacturing companies are trading lower, potentially on continued weakness after the Trump Administration on Thursday rolled back a proposal to eliminate rebates from government drug plans.",-0.9635,0.9722,Other,none,3.2
+77,news,PFE,"Pfizer Reports Top-Line Results From Second Pivotal Phase 3 Study Of Abrocitinib In Patients Aged 12 and Older with Moderate to Severe Atopic Dermatitis: Achieved Co-Primary, Key Secondary Endpoints",0.7414,0.7531,Other,none,2.7
+78,news,BAC,Bank Of America Says Sees Nothing In Its Business That Suggests A Slow Down Is Imminent,-0.6171,0.6828,Other,none,2.5
+79,news,PFE,"Shares of several biotech companies are trading lower after FDA commissioner Scott Gottlieb announced he will resign; he pushed to spur the development of new drugs and with his absence, there is concern on future FDA approvals.",-0.9623,0.9713,Regulatory,rules,7.1
+80,news,BAC,Investor Movement Index February Summary,-0.0628,0.8199,Other,none,1.8
+81,news,BAC,Stocks That Hit 52-Week Highs On Monday,0.1622,0.6719,Other,none,1.9
+82,news,PFE,Study: ViiV Healthcare's 2-Drug HIV Regimen As Effective As 3,0.8837,0.8919,Other,none,3.0
+83,news,JNJ,"Biotech Stock On The Radar: Anavex, A Neurology-Focused Precision Medicine Company",0.067,0.914,Other,none,1.9
+84,news,XOM,Shares of several oil companies are trading higher after IEA reported a much larger-than-expected draw in crude oil inventories.,0.8817,0.9281,Other,none,3.0
+85,news,XOM,Shares of oil and gas companies are trading higher after the US and China agreed to phase out tariffs.,0.9151,0.9451,Geopolitical,rules,8.5
+86,news,BAC,"Facebook, Snap And More 'Fast Money' Picks For October 22",0.0032,0.9464,Other,none,1.8
+87,news,JNJ,J&J's Janssen Says Is In the Process Of Submitting Regulatory Applications To Respective Health Authorities Related To Preventive HIV Vaccine,0.0568,0.9187,Other,none,1.8
+88,news,XOM,Shares of several oil stocks are trading higher due to an oil price increase after industry data showed a decline in US oil reserves.,0.8071,0.8935,Macroeconomic,rules,7.0
+89,news,JNJ,Mid-Afternoon Market Update: Dow Rises Over 200 Points; Ocugen Shares Spike Higher,0.902,0.9327,Other,none,3.0
+90,news,NVDA,Stocks That Hit 52-Week Highs On Monday,0.1622,0.6719,Other,none,1.9
+91,news,NVDA,"Shares of several semiconductor companies are trading lower after weak quarterly results from Broadcom, citing ""broad-based"" demand weakness and the U.S. crackdown on Huawei.",-0.9634,0.9713,Earnings,rules,5.8
+92,news,NVDA,"SunTrust Robinson Humphrey Maintains Buy on NVIDIA, Raises Price Target to $240",0.7357,0.753,Other,none,2.7
+93,news,BAC,"Stocks Falter As Trade Tension, European Growth Worries Mount",-0.9217,0.9337,Other,none,3.1
+94,news,PFE,"Bulls And Bears Of The Week: Boeing, GM, Pfizer, Starbucks And More",0.002,0.9424,Other,none,1.8
+95,news,JNJ,Meg Tirrell On CNBC Says Opioid Investigation Is Not New,-0.1663,0.78,Regulatory,rules,3.6
+96,news,BAC,"Earnings Scheduled For January 16, 2019",-0.0747,0.882,Earnings,rules,2.9
+97,news,JPM,What Is Hiding Beneath This Market?,-0.3208,0.618,Other,none,2.1
+98,news,JNJ,Johnson & Johnson Wins FDA Panel Backing For Nasal Spray Depression Drug; PDUFA Date Awaits,0.1219,0.7747,Regulatory,rules,3.5
+99,news,BAC,New To Banking? Here Are Some Of The Best Banks For College Students,0.0928,0.8819,Other,none,1.9
+100,news,DIS,Walt Disney (DIS) Outpaces Stock Market Gains: What You Should Know,0.125,0.8431,Other,none,1.9
