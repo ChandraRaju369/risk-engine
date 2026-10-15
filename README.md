@@ -78,6 +78,33 @@ python -m validation.score                                     # writes output/v
 ## Demo
 `python -m scripts.demo_prep` then follow `docs/DEMO_SCRIPT.md`.
 
+## Results
+
+All numbers come from real runs of this code on the Kaggle Benzinga headline set (see the Backtest section).
+
+### Backtest: sentiment-tilted index vs equal weight
+Weights are set at each 4 pm New York close from earlier news only and earn the next day's return; 5 bps cost on everything traded; tilt k = 1.5, half-life 2 days, parameters fixed before looking at results.
+
+| Year | Stocks with news | Tilted return | Equal-weight return | Extra per year (after costs) | t-stat | Daily IC |
+|---|---|---|---|---|---|---|
+| 2018 | 8 of 15 | -1.4% | -0.3% | -1.2% | -1.08 | +0.010 |
+| 2019 | 9 of 15 | +28.5% | +31.4% | -2.3% | -1.63 | -0.010 |
+
+**Conclusion: no measurable edge.** Neither year is statistically different from zero (|t| < 2) and the rank correlation between sentiment and next-day returns is about zero. The tilt trades about 4% of the index a day against 0.4% for equal weight, which costs roughly 0.8 to 0.9 points a year. A weaker tilt loses less (2019, k = 0.5: -0.8% a year). Most Kaggle headlines are analyst-rating notes, and 6 to 7 of the 15 stocks have no headlines in the file, so the test is weak evidence about news sentiment in general.
+
+### NLP accuracy on 100 labelled headlines
+Sample drawn from the 2019 headlines; the engine's answers were hidden while labelling. Labels were drafted with an LLM and then reviewed. With 100 items the 95% interval is about 9 points either way.
+
+| Measure | Result |
+|---|---|
+| Direction right on clearly good or bad news (43 items) | 86% (73-93%) |
+| Three-way sentiment agreement | 63% (53-72%), macro-F1 0.61; guessing "neutral" scores 57% |
+| Event type agreement | 67% (57-75%); keyword rules right 52% on 31 items, "Other" default right 74% on 69 |
+
+Main weakness: market-wide commentary (for example "Dow Rises Over 200 Points") is scored as company sentiment.
+
+Reproduce: `python -m backtest.run --news "path/to/archive.zip"` and `python -m validation.make_sample --news "path/to/archive.zip"` then `python -m validation.score`.
+
 ## Status
 - [x] Ingestion (RSS news, StockTwits, replay), entity linking, spam filter, SQLite
 - [x] Sentiment, event classifier, impact score
@@ -85,4 +112,5 @@ python -m validation.score                                     # writes output/v
 - [x] Module A: aggregator, rebalancer, dashboard
 - [x] Backtest (code done; results to be added after the real run)
 - [x] Validation tool, demo prep and demo script
-- [ ] Real results (backtest, accuracy), slides, recorded demo
+- [x] Real results (backtest, accuracy) and slides
+- [ ] Recorded demo
